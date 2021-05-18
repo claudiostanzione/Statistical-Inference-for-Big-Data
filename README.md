@@ -1,4 +1,4 @@
-# Statistical-Inference-for-Big-Data
+# Statistical-Inference-for-Big-Data (in R)
 
 The problem
 Like all firms, life insurance companies continually seek new ways to deliver products to the market. Those
