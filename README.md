@@ -28,19 +28,33 @@ GENDER Gender of the survey respondent
 AGE Age of the survey respondent
 
 MARSTAT Marital status (=1 married,=2 living with partner, =0 otherwise)
+
 EDUCATION Number of years of education of the survey respondent
+
 ETHNICITY Ethnicity
+
 SMARSTAT Marital status of the respondent’s spouse
+
 SGENDER Gender of the respondent’s spouse
+
 SAGE Age of the respondent’s spouse
+
 SEDUCATION Education of the respondent’s spouse
+
 NUMHH Number of household members
+
 INCOME Annual income of the family
+
 TOTINCOME Total income
+
 CHARITY Charitable contributions
+
 FACE Amount the company will pay in case of the death of the named insured
+
 FACECVLIFEPOLICIES Face amount of life insurance policy with a cash value
+
 CASHCVLIFEPOLICIES Cash value of life insurance policy with a cash value
+
 BORROWCVLIFEPOL Net amount at risk on life insurance policy with a cash value
 
 Question 1 (6pt)
