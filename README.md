@@ -22,8 +22,11 @@ the marital status MARSTAT, the charitable contributions, CHARITY.
 1
 
 Variable Description
+
 GENDER Gender of the survey respondent
+
 AGE Age of the survey respondent
+
 MARSTAT Marital status (=1 married,=2 living with partner, =0 otherwise)
 EDUCATION Number of years of education of the survey respondent
 ETHNICITY Ethnicity
@@ -40,7 +43,6 @@ FACECVLIFEPOLICIES Face amount of life insurance policy with a cash value
 CASHCVLIFEPOLICIES Cash value of life insurance policy with a cash value
 BORROWCVLIFEPOL Net amount at risk on life insurance policy with a cash value
 
-Questions
 Question 1 (6pt)
 1. Import the data set in a data frame (the final object should be a tibble).
 2. Produce a new data frame (to be used later for the data analysis) by selecting only the dependent
