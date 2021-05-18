@@ -1,0 +1,156 @@
+---
+title: "STANZIONE CLAUDIO ESAME 19/12/2019"
+author: "Claudio"
+date: "19/12/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(stats)
+```
+
+```{r}
+data <- read.csv("TermLife_16.csv")
+
+data$GENDER <- factor(data$GENDER)
+data$MARSTAT <- factor(data$MARSTAT)
+data$NUMHH <- factor(data$NUMHH)
+data$EDUCATION <- factor(data$EDUCATION)
+dati <- data%>%
+  select(FACE,INCOME,EDUCATION,NUMHH,GENDER,MARSTAT,CHARITY)
+
+```
+
+```{r}
+CountMissing <- function(x){
+  numna <-(is.na(x))
+  return(c(colSums(numna),"SUM"=sum(numna)))
+
+}
+```
+
+```{r}
+CountMissing(dati)
+```
+The most missing values are in FACE, the variable that say the amount of company will pay in case of the death of named inured. Is the most import variable in dataset, there are 148 missing values respect the 2500 observation, it's a problem but not big . 
+
+```{r}
+datali <- drop_na(data, FACE)
+YESNOFACE <- ifelse(datali$FACE==0, 0, 1)
+datali<- cbind(datali,YESNOFACE)
+datali$YESNOFACE <- factor(datali$YESNOFACE)
+
+ggplot(datali, aes(x=INCOME, colour=YESNOFACE))+geom_density(aes(colour=YESNOFACE, fill=YESNOFACE, alpha=0.3))
+```
+Is impossible understand the plot. Try with a log transformation.
+
+```{r}
+ggplot(datali, aes(x=log(INCOME), colour=YESNOFACE))+geom_density(aes(colour=YESNOFACE, fill=YESNOFACE, alpha=0.3))
+```
+We can see that is no more differences between the two groups, in the group that have a life insurance we can note the presence of multimodality, in general the group with life insurance have a income that is greater but not more. Try to analyze with boxplot and summary.
+
+```{r}
+ggplot(datali, aes(x=YESNOFACE, y=log(INCOME)))+geom_boxplot()
+with(datali, by(INCOME, YESNOFACE, fivenum))
+```
+With the boxplot we confirm what written , in case of the customer that have a life insurance the income is higher . The variance in the case of customer with life insurance is less than without life insurance. There are more outliers in case of customer with life insurance. The data in the boxplots are confirmed by the summary that resume the various percentile and the median. In case of person with life insurance the first and third quartile and also in the median. That means the 50% of income of the person that have a life insurance earn more than the 50% of the person without a life insurance. 
+
+```{r}
+t.test(INCOME~YESNOFACE, data=datali)
+```
+The mean of the income for the group that hasn't life insurance is 282991 dollars while if life insurance is present the mean of income is 225331 dollars. 
+
+```{r}
+dati1 <- dati%>%
+  filter(dati$FACE>0)
+ggplot(dati1, aes(x=FACE, y=INCOME))+ geom_point()
+```
+We are trying to do an analysis about the relationship between the quantity of the insurance and the income, obviuosly only when the customer already have a life insurance. The plot is not more readable . Try with a log transformation.
+
+```{r}
+ggplot(dati1, aes(x=log(FACE), y=log(INCOME)))+ geom_point()+ geom_smooth(method = "lm")
+cov(dati1$FACE, dati1$INCOME)
+cor(dati1$FACE, dati1$INCOME)
+```
+There is a linear relationship between the two variables, that means when the INCOME increase the amount the company will pay in case of the death of the named insured increase. This is confirmed by the covariance. The correlation say to us that is true that is a linear relationship and is positive but is not very strong. Try with a non parametric line.
+
+```{r}
+ggplot(dati1, aes(x=log(FACE), y=log(INCOME)))+ geom_point()+ geom_smooth(method = "loess")
+```
+Non parametric line confirm that the linear relationship is not true, in particular in the first part the amount payed increase with the decreasing of income , in second part there is a better linear relationship.
+
+```{r}
+summary(dati1$FACE)
+summary(dati1$INCOME)
+```
+The minimum amount payed in this case is 800 dollars. In mean the insurance company pay 706839 dollars in case of death. The 75% of the person that have a insurance the FACE is 580000 dollars. The median (a robust indicator) say to us that the 50% of the people in case of death has a FACE of 150000 
+The income of person that have a life insurance in mean is 227945 dollars in one year. The less 25% of person earn a sum that is equal or less than 36000 dollars. 
+
+```{r}
+dati1 <- drop_na(dati1, GENDER)
+ggplot(dati1, aes(x=log(FACE), y=log(INCOME), colour=GENDER))+ geom_point()+ geom_smooth(method = "lm")
+```
+The data are transformed with the log. If we do the same analysis conditioning and colouring by gender we can say that the amount payed to the man in case of death is greater than the amount payed to the woman. Is important say that there are less observation of woman than man. Try with a non parametric line. 
+
+```{r}
+ggplot(dati1, aes(x=log(FACE), y=log(INCOME), colour=GENDER))+ geom_point()+ geom_smooth(method = "loess")
+```
+Is more different. In man case we find the same results that we found without the colouring by gender, instead in the woman the relation is more linear. In the woman case is more true that with the increasing of income the amount payed by the insurance increase.
+```{r}
+t.test(FACE~GENDER, data=dati1)
+```
+The mean of FACE in case of woman is 126328 dollars while in man is 789547 dollars.
+
+```{r}
+fit1 <- lm(log(FACE)~log(INCOME), data=dati1)
+summary(fit1)
+plot(fit1)
+confint(fit1)
+```
+
+This model try to explain the relationship between the INCOME and FACE. In particular we accept the hypothesis that if increase the income increase the FACE. This model is able to explain the 23.4 % of the variablity of the amount payed by the insurance company. This is a linear model and then if we increase the annual income of the family of 1% the amount payed by the company increase of the 0.7%.
+
+```{r}
+fit2 <- lm(log(FACE)~GENDER, data=dati1)
+summary(fit2)
+plot(fit2)
+confint(fit2)
+```
+This model try to explain the variablity of the FACE in base of GENDER. The hyphotesis that if we change the gender ceteris paribus the other variables the amount payed change is true . In particular if we pass by the woman to the man the amount payed increase of 1.4 %. This model is not more able to explain the variablity of the FACE, in particular explain only the 6.4 % of the variablity.
+
+```{r}
+
+fit3 <- lm(log(FACE)~NUMHH, data=dati1)
+summary(fit3)
+plot(fit3)
+confint(fit3)
+```
+
+This model try to explain the variablity of the FACE depending the number of household members. The amount payed is not equal infact, is different for any group. In particular amount payed for the family with 6 members is 2.08%  greater than is only one member. This model with this variable is able to explain the 12.13 % of the variablity of the amount payed. This test with 95% level of confidence is not significant with 9 members in the family.
+
+```{r}
+
+fit4 <- lm(log(FACE)~EDUCATION, data=dati1)
+summary(fit4)
+plot(fit4)
+confint(fit4)
+
+```
+
+This model with 95% level of confidence try to explain the variablity of FACE with variable EDUCATION . Is significant only when the grade of education is 16 and 17. In particular when grade of education is 17 the amount payed respect education 2 is greater than 3.13%. When is significant the model is able to explain the 26.6 % of the variablity of FACE.
+
+```{r}
+fit5 <- lm(log(FACE)~log(INCOME)+GENDER+EDUCATION+NUMHH, data=dati1)
+summary(fit5)
+plot(fit5)
+confint(fit5)
+```
+
+This model with 95% of confidence try to explain the variablity of the FACE with all variables that we do an analysis. In many cases the hyphotesis are true but in some cases not. In particular that model say to us if we increase of 1% the income the amount payed increase of 0.39%. If we pass by woman to man the amount payed increase of 0.7 %. If we pass by 1 member in family to seven member in family the amount payed increase of 1.69 %. There are more values that can be analyzed. This model is able to explain the 46% of the variablity of the amount payed.
